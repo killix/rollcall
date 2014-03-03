@@ -20,8 +20,8 @@
     
     <div>
       <ul>
-        <li ng-repeat="person in ctrl.people">
-          {{ person.name }}
+        <li ng-repeat="person in ctrl.getPeople()" ng-click="ctrl.markPresent(person.dbKey)">
+          {{ person.name }} {{ ctrl.isPresent(person.dbKey) ? 'Here!' : 'Not here :(' }}
          </li>
       </ul>
     </div>
