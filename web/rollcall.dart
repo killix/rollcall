@@ -2,10 +2,6 @@ import 'package:angular/angular.dart';
 import 'person/person.dart';
 import 'attendance/attendance.dart';
 
-@MirrorsUsed(override:'*')
-import 'dart:mirrors';
-
-
 @NgController(
 	selector: '[people]',
 	publishAs: 'ctrl')
@@ -29,10 +25,13 @@ class PeopleController {
 	}
 
 	void markPresent(var dbKey) {
+		Person p = db.people.firstWhere((p) => p.dbKey == dbKey);
+		print("${p.name} is here on ${new DateTime.now()}");
 		aDb.add(dbKey);
 	}
 
 	bool isPresent(var dbKey) {
+
 		DateTime now = new DateTime.now();
 		now = new DateTime(now.year, now.month, now.day, 0, 0, 0, 0);
 		if(aDb.attendances.where((a) {
