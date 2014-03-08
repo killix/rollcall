@@ -1,32 +1,38 @@
 import 'package:angular/angular.dart';
 import 'person/person.dart';
 import 'attendance/attendance.dart';
+import 'dart:html';
+import 'dart:web_sql';
 
 @NgController(
 	selector: '[people]',
 	publishAs: 'ctrl')
 class PeopleController {
 	String name = '';
-	PersonStore db = new PersonStore('rollCallDB');
-	AttendanceStore aDb = new AttendanceStore('rollCallDB');
+	PersonStore pDB;
+	AttendanceStore aDb;
 
 	PeopleController() {
-		db.open();
-		aDb.open();
+		SqlDatabase db = window.openDatabase('rollcallDb', '1.0', 'Rollcall DB', 2 * 1024 * 1024);
+		db.transaction((tx) {
+			tx.executeSql('CREATE TABLE IF NOT EXISTS person ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"name" TEXT NOT NULL,"created" TEXT NOT NULL)', []);
+			tx.executeSql('CREATE TABLE IF NOT EXISTS attendance ("personId" INTEGER NOT NULL,"attendedOn" INTEGER NOT NULL,PRIMARY KEY ("personId", "attendedOn"))', []);
+		});
+		pDB = new PersonStore(db);
+		aDb = new AttendanceStore(db);
 	}
 
 	List<Person> getPeople() {
-		return db.people;
+		return pDB.people;
 	}
 
 	void addPerson() {
-		db.add(name);
+		pDB.add(name);
 		name = '';
 	}
 
 	void markPresent(var dbKey) {
-		Person p = db.people.firstWhere((p) => p.dbKey == dbKey);
-		print("${p.name} is here on ${new DateTime.now()}");
+		Person p = pDB.people.firstWhere((p) => p.dbKey == dbKey);
 		aDb.add(dbKey);
 	}
 
@@ -35,7 +41,7 @@ class PeopleController {
 		DateTime now = new DateTime.now();
 		now = new DateTime(now.year, now.month, now.day, 0, 0, 0, 0);
 		if(aDb.attendances.where((a) {
-			 return (a.dbKey == dbKey && a.attendedOn == now);
+			 return (a.personId == dbKey && a.attendedOn == now);
 		}).length > 0) {
 			return true;
 		}

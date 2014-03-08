@@ -1,88 +1,62 @@
 library Attendance;
 
-import 'dart:indexed_db';
 import 'dart:async';
-import 'dart:html';
+import 'dart:web_sql';
 
 class Attendance {
 	var personId;
 	DateTime attendedOn;
-	var dbKey;
 
 	Attendance(this.personId, DateTime aton) {
 		attendedOn = new DateTime(aton.year, aton.month, aton.day, 0, 0, 0, 0);
 	}
 
-	Attendance.fromRaw(key, Map value):
-		dbKey = key,
+	Attendance.fromRaw(Map value):
 		personId = value['personId'] {
 		attendedOn = new DateTime.fromMillisecondsSinceEpoch(value['attendedOn']);
 		attendedOn = new DateTime(attendedOn.year, attendedOn.month, attendedOn.day, 0, 0, 0, 0);
 	}
 
-      // Serialize this to an object (a Map) to insert into the database.
-	Map toRaw() {
-    	return {
-      		'personId': personId,
-      		'attendedOn': attendedOn.millisecondsSinceEpoch
-    	};
+	// Serialize this to an object (a Map) to insert into the database.
+	List toRaw() {
+		return [
+			personId,
+			attendedOn.millisecondsSinceEpoch
+		];
 	}
 }
 
 class AttendanceStore {
-	static const String ATTENDANCE_STORE = 'attendanceStore';
-	static const String PERSON_INDEX = 'person_index';
-	String _dbName;
 	final List<Attendance> attendances = new List<Attendance>();
-	Database _db;
+	SqlDatabase _db;
 
-	AttendanceStore(this._dbName);
+	AttendanceStore(this._db) {
+		_loadFromDB();
+	}
 
-    	Future open(){
-    		return window.indexedDB.open(_dbName,
-    		version: 2,
-    		onUpgradeNeeded: _initializeDatabase)
-    	.then(_loadFromDB);
-    	}
+	Future _loadFromDB() {
+		Completer c = new Completer();
+		_db.transaction((tx) {
+			tx.executeSql("select * from attendance", [], (tx, results){
+				for(var row in results.rows){
+					attendances.add(new Attendance.fromRaw(row));
+				}
+				c.complete();
+			});
+		});
+		return c.future;
+	}
 
-    	void _initializeDatabase(VersionChangeEvent e) {
-    		Database db = (e.target as Request).result;
+	Future<Attendance> add(var pKey) {
+		Attendance a = new Attendance(pKey, new DateTime.now());
+		Completer c = new Completer();
 
-    		var objectStore = db.createObjectStore(ATTENDANCE_STORE);
-
-    		objectStore.createIndex(PERSON_INDEX, 'personId');
-    	}
-
-    	Future _loadFromDB(Database db) {
-    		_db = db;
-
-    		var trans = db.transaction(ATTENDANCE_STORE, 'readonly');
-    		var store = trans.objectStore(ATTENDANCE_STORE);
-
-    		var cursors = store.openCursor(autoAdvance: true).asBroadcastStream();
-    		cursors.listen((cursor) {
-    			Attendance attend = new Attendance.fromRaw(cursor.key, cursor.value);
-    			attendances.add(attend);
-    		});
-    		return cursors.length.then((_) {
-      			return attendances.length;
-    		});
-    	}
-
-    	Future<Attendance> add(var pKey) {
-			Attendance a = new Attendance(pKey, new DateTime.now());
-            Map attendanceAsMap = a.toRaw();
-
-            var transaction = _db.transaction(ATTENDANCE_STORE, 'readwrite');
-            var objectStore = transaction.objectStore(ATTENDANCE_STORE);
-
-            objectStore.add(attendanceAsMap).then((addedKey) {
-              a.dbKey = addedKey;
-            });
-
-            return transaction.completed.then((_) {
-            	attendances.add(a);
-            	return a;
-            });
-    	}
+		_db.transaction((tx) {
+			tx.executeSql("INSERT INTO attendance (personId, attendedOn) VALUES (?, ?)", a.toRaw(), (tx, reseults) {
+				attendances.add(a);
+				c.complete(a);
+			});
+		});
+		return c.future;
+	}
 }

@@ -1,85 +1,68 @@
 library Person;
 
-import 'dart:indexed_db';
+import 'dart:web_sql';
 import 'dart:async';
-import 'dart:html';
 
 class Person {
 	String name;
-	var dbKey;
+	int dbKey;
 
 	Person(this.name);
 
-	Person.fromRaw(key, Map value):
-		dbKey = key,
+	Person.fromRaw(Map value):
+		dbKey = value['id'],
 		name = value['name'] {
 	}
 
-      // Serialize this to an object (a Map) to insert into the database.
+	String toString() {
+		return "${this.name} - ${this.dbKey}";
+	}
+
+	// Serialize this to an object (a Map) to insert into the database.
 	Map toRaw() {
-    	return {
-      		'name': name
-    	};
+		return {
+			'id': dbKey,
+			'name': name
+		};
 	}
 }
 
 class PersonStore {
-	static const String PERSON_STORE = 'personStore';
-	static const String NAME_INDEX = 'name_index';
-	String _dbName;
 	final List<Person> people = new List<Person>();
-	Database _db;
+	SqlDatabase _db;
 
-	PersonStore(this._dbName);
-
-	Future open(){
-		return window.indexedDB.open(_dbName,
-		version: 1,
-		onUpgradeNeeded: _initializeDatabase)
-	.then(_loadFromDB);
+	PersonStore(this._db) {
+		this._loadFromDB();
 	}
 
-	void _initializeDatabase(VersionChangeEvent e) {
-		Database db = (e.target as Request).result;
-
-		var objectStore = db.createObjectStore(PERSON_STORE,
-		    autoIncrement: true);
-
-		// Create an index to search by name,
-		// unique is true: the index doesn't allow duplicate milestone names.
-		objectStore.createIndex(NAME_INDEX, 'name', unique: true);
-	}
-
-	Future _loadFromDB(Database db) {
-		_db = db;
-
-		var trans = db.transaction(PERSON_STORE, 'readonly');
-		var store = trans.objectStore(PERSON_STORE);
-
-		var cursors = store.openCursor(autoAdvance: true).asBroadcastStream();
-		cursors.listen((cursor) {
-			Person person = new Person.fromRaw(cursor.key, cursor.value);
-			people.add(person);
+	Future _loadFromDB() {
+		Completer c = new Completer();
+		_db.transaction((tx) {
+			tx.executeSql("select * from person", [], (tx, results){
+				for(var row in results.rows){
+					people.add(new Person.fromRaw(row));
+				}
+				c.complete();
+			});
 		});
-		return cursors.length.then((_) {
-  			return people.length;
-		});
+		return c.future;
 	}
 
 	Future<Person> add(String name) {
-        Person p = new Person(name);
-        Map personAsMap = p.toRaw();
+		Person p = new Person(name);
+		Completer c = new Completer();
 
-        var transaction = _db.transaction(PERSON_STORE, 'readwrite');
-        var objectStore = transaction.objectStore(PERSON_STORE);
-
-        objectStore.add(personAsMap).then((addedKey) {
-          p.dbKey = addedKey;
-        });
-
-        return transaction.completed.then((_) {
-        	people.add(p);
-        	return p;
-        });
+		_db.transaction((tx) {
+			tx.executeSql("INSERT INTO person (name, created) VALUES (?, ?)", [p.name, new DateTime.now().toIso8601String()]);
+			tx.executeSql('Select last_insert_rowid() as id', [], (tx, results) {
+				for(var row in results.rows) {
+					p.dbKey = row['id'];
+					break;
+				}
+				people.add(p);
+				c.complete(p);
+			});
+		});
+		return c.future;
 	}
 }
