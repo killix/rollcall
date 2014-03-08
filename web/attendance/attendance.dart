@@ -24,6 +24,10 @@ class Attendance {
 			attendedOn.millisecondsSinceEpoch
 		];
 	}
+
+	String toString() {
+		return "${this.personId} - ${this.attendedOn.toLocal()}";
+	}
 }
 
 class AttendanceStore {
@@ -52,11 +56,28 @@ class AttendanceStore {
 		Completer c = new Completer();
 
 		_db.transaction((tx) {
-			tx.executeSql("INSERT INTO attendance (personId, attendedOn) VALUES (?, ?)", a.toRaw(), (tx, reseults) {
+			tx.executeSql("INSERT INTO attendance (personId, attendedOn) VALUES (?, ?)", a.toRaw(), (tx, results) {
 				attendances.add(a);
 				c.complete(a);
 			});
 		});
 		return c.future;
+	}
+
+	Future remove(Attendance a) {
+		Completer c = new Completer();
+		_db.transaction((tx) {
+			tx.executeSql("DELETE FROM attendance WHERE personId = ? and attendedOn = ?", [a.personId, a.attendedOn.millisecondsSinceEpoch], (tx, results){
+				attendances.removeWhere((test) {
+					return test.personId == a.personId && test.attendedOn == a.attendedOn;
+				});
+				c.complete();
+			});
+		});
+		return c.future;
+	}
+
+	String toString() {
+		return this.attendances.toString();
 	}
 }

@@ -31,9 +31,16 @@ class PeopleController {
 		name = '';
 	}
 
-	void markPresent(var dbKey) {
+	void togglePresent(var dbKey) {
 		Person p = pDB.people.firstWhere((p) => p.dbKey == dbKey);
-		aDb.add(dbKey);
+		Attendance temp = new Attendance(dbKey, new DateTime.now());
+		if(aDb.attendances.isNotEmpty && aDb.attendances.firstWhere((test) {
+			return test.attendedOn == temp.attendedOn && test.personId == temp.personId;
+		}, orElse: null) != null){
+			aDb.remove(temp);
+		} else {
+			aDb.add(dbKey);
+		}
 	}
 
 	bool isPresent(var dbKey) {
