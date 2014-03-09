@@ -3,6 +3,7 @@ import 'person/person.dart';
 import 'attendance/attendance.dart';
 import 'dart:html';
 import 'dart:web_sql';
+import '../packages/bootjack/bootjack.dart';
 
 @NgController(
 	selector: '[people]',
@@ -11,6 +12,7 @@ class PeopleController {
 	String name = '';
 	PersonStore pDB;
 	AttendanceStore aDb;
+	DateTime currentDate;
 
 	PeopleController() {
 		SqlDatabase db = window.openDatabase('rollcallDb', '1.0', 'Rollcall DB', 2 * 1024 * 1024);
@@ -20,6 +22,8 @@ class PeopleController {
 		});
 		pDB = new PersonStore(db);
 		aDb = new AttendanceStore(db);
+		DateTime now = new DateTime.now();
+        currentDate = new DateTime(now.year, now.month, now.day, 0, 0, 0, 0);
 	}
 
 	List<Person> getPeople() {
@@ -33,10 +37,10 @@ class PeopleController {
 
 	void togglePresent(var dbKey) {
 		Person p = pDB.people.firstWhere((p) => p.dbKey == dbKey);
-		Attendance temp = new Attendance(dbKey, new DateTime.now());
+		Attendance temp = new Attendance(dbKey, currentDate);
 		if(aDb.attendances.isNotEmpty && aDb.attendances.firstWhere((test) {
 			return test.attendedOn == temp.attendedOn && test.personId == temp.personId;
-		}, orElse: null) != null){
+		}, orElse: () => null ) != null){
 			aDb.remove(temp);
 		} else {
 			aDb.add(dbKey);
@@ -44,11 +48,8 @@ class PeopleController {
 	}
 
 	bool isPresent(var dbKey) {
-
-		DateTime now = new DateTime.now();
-		now = new DateTime(now.year, now.month, now.day, 0, 0, 0, 0);
 		if(aDb.attendances.where((a) {
-			 return (a.personId == dbKey && a.attendedOn == now);
+			 return (a.personId == dbKey && a.attendedOn == currentDate);
 		}).length > 0) {
 			return true;
 		}

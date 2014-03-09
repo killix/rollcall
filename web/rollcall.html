@@ -5,24 +5,17 @@
     <meta charset="utf-8">
     <title>RollCall</title>
     <link rel="stylesheet" href="rollcall.css">
+    <link rel="stylesheet" href="packages/bootjack/css/bootstrap.css">
   </head>
   <body people ng-cloak>
-    <h1>RollCall</h1>
-    
-    <div class="nav">
-      <ul>
-        <li>
-          Add Person: <input ng-model="ctrl.name" type="text" /> 
-          <button ng-click="ctrl.addPerson()">Add</button>
-         </li>
-      </ul>
-    </div>
-    
+    <h1>RollCall for {{ctrl.currentDate.toLocal() | date:'M/d/yy' }}</h1>    
     <div>
-      <ul>
+      <ul class="person-list">
         <li ng-repeat="person in ctrl.getPeople()" ng-click="ctrl.togglePresent(person.dbKey)">
-          {{ person.name }} {{ ctrl.isPresent(person.dbKey) ? 'Here!' : 'Not here :(' }}
+        <button id="btn" class="btn b" ng-class="ctrl.isPresent(person.dbKey) ? 'btn-success' : 'btn-inverse'">{{ person.name }}</button>
+           
          </li>
+         <li>Add Person: <input ng-model="ctrl.name" type="text" /> <button ng-click="ctrl.addPerson()" class="btn btn-primary"><span class="glyphicon-plus"></span>Add</button></li>
       </ul>
     </div>
   	<script src="packages/shadow_dom/shadow_dom.min.js"></script>
