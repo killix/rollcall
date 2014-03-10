@@ -3,7 +3,12 @@ import 'person/person.dart';
 import 'attendance/attendance.dart';
 import 'dart:html';
 import 'dart:web_sql';
-import '../packages/bootjack/bootjack.dart';
+
+@MirrorsUsed(
+		targets: 'DateTime',
+		override: '*'
+	)
+import 'dart:mirrors';
 
 @NgController(
 	selector: '[people]',

@@ -23,3 +23,7 @@ ul {
 ul.person-list li {
   padding: 5px;
 }
+
+h1.title {
+  text-align: center;
+}

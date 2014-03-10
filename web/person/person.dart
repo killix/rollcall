@@ -3,6 +3,13 @@ library Person;
 import 'dart:web_sql';
 import 'dart:async';
 
+@MirrorsUsed(
+		targets:'Person,DateTime',
+		override: '*'
+	)
+import 'dart:mirrors';
+
+
 class Person {
 	String name;
 	int dbKey;

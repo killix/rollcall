@@ -3,6 +3,12 @@ library Attendance;
 import 'dart:async';
 import 'dart:web_sql';
 
+@MirrorsUsed(
+		targets:'Attendance,DateTime',
+		override: '*'
+	)
+import 'dart:mirrors';
+
 class Attendance {
 	var personId;
 	DateTime attendedOn;
