@@ -5,10 +5,11 @@ import 'dart:html';
 import 'dart:web_sql';
 
 @MirrorsUsed(
-		targets: 'DateTime',
+		targets: 'DateTime,MonthTotal',
 		override: '*'
 	)
 import 'dart:mirrors';
+import '../packages/intl/intl.dart';
 
 @NgController(
 	selector: '[people]',
@@ -18,6 +19,8 @@ class PeopleController {
 	PersonStore pDB;
 	AttendanceStore aDb;
 	DateTime currentDate;
+	bool showTotals = false;
+	List<MonthTotal> monthTotals = new List<MonthTotal>();
 
 	PeopleController() {
 		SqlDatabase db = window.openDatabase('rollcallDb', '1.0', 'Rollcall DB', 2 * 1024 * 1024);
@@ -60,6 +63,37 @@ class PeopleController {
 		}
 		return false;
 	}
+
+	List<MonthTotal> getMonthTotals() {
+		if(monthTotals.isEmpty) {
+			MonthTotal mt = new MonthTotal();
+			DateTime lastMonth = currentDate.subtract(new Duration(days: 30));
+			mt.month = new DateFormat.MMMM().format(lastMonth);
+			mt.total = 0;
+			List<int> done = new List<int>();
+			for(Attendance a in aDb.attendances) {
+				if(done.contains(a.personId)) {
+					continue;
+				}
+				if(a.attendedOn.month == lastMonth.month) {
+					++mt.total;
+					done.add(a.personId);
+				}
+			}
+			monthTotals.add(mt);
+		}
+		return monthTotals;
+	}
+}
+
+@MirrorsUsed(
+		targets:'MonthTotal',
+		override: '*'
+	)
+class MonthTotal {
+	String month;
+	int total;
+	int ysa;
 }
 
 class RollcallModule extends Module {

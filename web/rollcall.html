@@ -18,6 +18,15 @@
          <li>New: <input ng-model="ctrl.name" type="text" /> <button ng-click="ctrl.addPerson()" class="btn btn-primary"><span class="glyphicon-plus"></span>Add</button></li>
       </ul>
     </div>
+    <div style="padding-left: 40px;">
+      <button class="btn b" ng-class="ctrl.showTotals == true ? 'btn-inverse' : 'btn-success'" ng-click="ctrl.showTotals = !ctrl.showTotals">{{ctrl.showTotals ? 'Hide' : 'Show'}} totals</button>
+      <div ng-if="ctrl.showTotals">
+        <div ng-repeat="monthTotal in ctrl.getMonthTotals()">
+          <div>Month: {{monthTotal.month}}</div>
+          <div>Total: {{monthTotal.total}}</div>
+        </div>
+      </div>
+    </div>
   	<script src="packages/shadow_dom/shadow_dom.min.js"></script>
 	<script type="application/dart" src="rollcall.dart"></script>
 	<script type="text/javascript" src="packages/browser/dart.js"></script>

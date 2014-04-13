@@ -4,6 +4,7 @@ dependencies:
   angular: any
   bootjack: any
   browser: any
+  intl: any
   shadow_dom: any
 dev_dependencies:
   unittest: any
