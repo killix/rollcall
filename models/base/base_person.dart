@@ -143,6 +143,31 @@ abstract class basePerson extends ApplicationModel {
 
 	static Person create() => new Person();
 
+	static Query getQuery([Map params = null, Query q = null]) {
+		q = q != null ? q.clone() : new Query();
+		if(q.getTable() == null) {
+			q.setTable(basePerson.getTableName());
+		}
+
+		if(params == null) {
+			params = new Map();
+		}
+
+		//filters
+		for(Object k in params.keys) {
+			if(basePerson.hasColumn(k)) {
+				q.add(k, params[k]);
+			}
+		}
+
+		//order_by
+		if(params.containsKey('order_by') && basePerson.hasColumn(params['order_by'])) {
+			q.orderBy(params['order_by'], params.containsKey('dir') ? Query.DESC : Query.ASC);
+		}
+
+		return q;
+	}
+
 	static String getTableName() => basePerson._tableName;
 
 	static List<String> getColumnNames() => basePerson._columnNames;
@@ -285,7 +310,7 @@ abstract class basePerson extends ApplicationModel {
 			return;
 		}
 
-		basePerson._instancePool[obj.getPrimaryKeyValues().join('-')] = obj;
+		basePerson._instancePool[obj.getPrimaryKeyValues().values.join('-')] = obj;
 		basePerson._instancePoolCount = basePerson._instancePool.length;
 	}
 
@@ -307,7 +332,7 @@ abstract class basePerson extends ApplicationModel {
 	 * Remove the object from the instance pool.
 	 */
 	static void removeFromPool(Object obj) {
-		String pk = (obj is Model) ? obj.getPrimaryKeyValues().join('-') : obj.toString();
+		String pk = (obj is Model) ? obj.getPrimaryKeyValues().values.join('-') : obj.toString();
 		if(basePerson._instancePool.containsKey(pk)) {
 			basePerson._instancePool.remove(pk);
 			basePerson._instancePoolCount = basePerson._instancePool.length;
@@ -365,7 +390,7 @@ abstract class basePerson extends ApplicationModel {
 		q.setLimit(1);
 		Completer c = new Completer();
 		basePerson.doSelect(q, additionalClasses).then((List<Person> objs) {
-			c.complete(objs.first);
+			c.complete(objs.isNotEmpty ? objs.first : null);
 		});
 		return c.future;
 	}
@@ -571,6 +596,38 @@ abstract class basePerson extends ApplicationModel {
 		return validationErrors.isEmpty;
 	}
 
+	/**
+	 * Creates and executess DELETE Query for this object
+	 * Deletes any database rows with a primary key(s) that match Instance of 'BaseModelGenerator'
+	 * NOTE/BUG: If you alter pre-existing primary key(s) before deleting, then you will be
+	 * deleting based on the new primary key(s) and not the originals,
+	 * leaving the original row unchanged(if it exists).  Also, since NULL isn't an accurate way
+	 * to look up a row, I return if one of the primary keys is null.
+	 * @return int number of records deleted
+	 */
+	Future<int> delete() {
+		Map<String, Object> pks = getPrimaryKeyValues();
+		if(pks == null || pks.isEmpty) {
+			throw new Exception('This table has no primary keys');
+		}
+		Query q = basePerson.getQuery();
+		for(String pk in pks.keys) {
+			var pkVal = pks[pk];
+			if(pkVal == null || pkVal.isEmpty) {
+				throw new Exception('Cannot delete using NULL primary key.');
+			}
+			q.addAnd(pk, pkVal);
+		}
+		q.setTable(basePerson.getTableName());
+		Completer c = new Completer();
+		basePerson.doDelete(q, false).then((int cnt) {
+			basePerson.removeFromPool(this);
+			c.complete(cnt);
+		});
+		return c.future;
+			
+	}
+
 	Query getForeignObjectsQuery(String foreignTable, String foreignColumn, String localColumn, [Query q = null]) {
 		Object value = getColumn(localColumn);
 		if (null == value) {
@@ -596,14 +653,14 @@ abstract class basePerson extends ApplicationModel {
 		return setColumnValueByLibrary(columnName, value, 'rollcallDb_project', columnType);
 	}
 
-	List<Object> getPrimaryKeyValues() {
-	    List<String> vals = new List<String>();
+	Map<String, Object> getPrimaryKeyValues() {
+	    Map<String, Object> vals = new Map<String, Object>();
 	    InstanceMirror im = reflect(this);
 
 		 for(String pk in getPrimaryKeys()) {
 	    	var name = MirrorSystem.getName(new Symbol("_${pk}"));
 	    	var symb = MirrorSystem.getSymbol(name, currentMirrorSystem().findLibrary(new Symbol('rollcallDb_project')));
-	    	vals.add(im.getField(symb).reflectee.toString());
+	    	vals[pk] = im.getField(symb).reflectee.toString();
 	    }
 	    return vals;
 	}

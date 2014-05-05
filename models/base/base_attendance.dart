@@ -76,8 +76,8 @@ abstract class baseAttendance extends ApplicationModel {
 	 * `attendedOn` TIMESTAMP NOT NULL
 	 */
 	String _attendedOn;
-
-	/**
+			
+	/** 
 	 * Gets the value of the personId field
 	 */
 	int getPersonId() {
@@ -91,8 +91,8 @@ abstract class baseAttendance extends ApplicationModel {
 	Attendance setPersonId(Object value) {
 		return setColumnValue('personId', value, Model.COLUMN_TYPE_INTEGER);
 	}
-
-	/**
+			
+	/** 
 	 * Gets the value of the attendedOn field
 	 */
 	String getAttendedOn([String format = null]) {
@@ -120,6 +120,31 @@ abstract class baseAttendance extends ApplicationModel {
 
 	static Attendance create() => new Attendance();
 
+	static Query getQuery([Map params = null, Query q = null]) {
+		q = q != null ? q.clone() : new Query();
+		if(q.getTable() == null) {
+			q.setTable(baseAttendance.getTableName());
+		}
+
+		if(params == null) {
+			params = new Map();
+		}
+
+		//filters
+		for(Object k in params.keys) {
+			if(baseAttendance.hasColumn(k)) {
+				q.add(k, params[k]);
+			}
+		}
+
+		//order_by
+		if(params.containsKey('order_by') && baseAttendance.hasColumn(params['order_by'])) {
+			q.orderBy(params['order_by'], params.containsKey('dir') ? Query.DESC : Query.ASC);
+		}
+
+		return q;
+	}
+
 	static String getTableName() => baseAttendance._tableName;
 
 	static List<String> getColumnNames() => baseAttendance._columnNames;
@@ -133,7 +158,7 @@ abstract class baseAttendance extends ApplicationModel {
 	static List<String> _columnsCache = new List<String>();
 
 	static bool hasColumn(String columnName) {
-
+		
 		if (null == _columnsCache) {
 			_columnsCache = baseAttendance._columnNames.map((String s) => s.toLowerCase()).toList();
 		}
@@ -168,7 +193,7 @@ abstract class baseAttendance extends ApplicationModel {
 			return null;
 		}
 		if(baseAttendance._poolEnabled) {
-			Attendance poolInstance = baseAttendance.retrieveFromPool(person_id-attended_on);
+			Attendance poolInstance = baseAttendance.retrieveFromPool([person_id, attended_on].join('-'));
 			if(null != poolInstance) {
 				return new Future.value(poolInstance);
 			}
@@ -257,7 +282,7 @@ abstract class baseAttendance extends ApplicationModel {
 			return;
 		}
 
-		baseAttendance._instancePool[obj.getPrimaryKeyValues().join('-')] = obj;
+		baseAttendance._instancePool[obj.getPrimaryKeyValues().values.join('-')] = obj;
 		baseAttendance._instancePoolCount = baseAttendance._instancePool.length;
 	}
 
@@ -279,7 +304,7 @@ abstract class baseAttendance extends ApplicationModel {
 	 * Remove the object from the instance pool.
 	 */
 	static void removeFromPool(Object obj) {
-		String pk = (obj is Model) ? obj.getPrimaryKeyValues().join('-') : obj.toString();
+		String pk = (obj is Model) ? obj.getPrimaryKeyValues().values.join('-') : obj.toString();
 		if(baseAttendance._instancePool.containsKey(pk)) {
 			baseAttendance._instancePool.remove(pk);
 			baseAttendance._instancePoolCount = baseAttendance._instancePool.length;
@@ -294,9 +319,9 @@ abstract class baseAttendance extends ApplicationModel {
 	static void setPoolEnabled([bool b = true]) {
 		baseAttendance._poolEnabled = b;
 	}
-
+	
 	static bool getPoolEnabled() => baseAttendance._poolEnabled;
-
+	
 	static Future<int> doCount([Query q = null]) {
 		q = q != null ? q.clone() : new Query();
 		DABLDDO conn = baseAttendance.getConnection();
@@ -313,7 +338,7 @@ abstract class baseAttendance extends ApplicationModel {
 			q.setTable(baseAttendance.getTableName());
 		}
 		Future<int> result = q.doDelete(conn);
-
+		
 		if (flushPool) {
 			baseAttendance.flushPool();
 		}
@@ -337,11 +362,7 @@ abstract class baseAttendance extends ApplicationModel {
 		q.setLimit(1);
 		Completer c = new Completer();
 		baseAttendance.doSelect(q, additionalClasses).then((List<Attendance> objs) {
-			if(objs.isNotEmpty) {
-			c.complete(objs.first);
-			} else {
-				c.complete(null);
-			}
+			c.complete(objs.isNotEmpty ? objs.first : null);
 		});
 		return c.future;
 	}
@@ -361,7 +382,7 @@ abstract class baseAttendance extends ApplicationModel {
 	 * Set the maximum insert batch size, once this size is reached the batch automatically inserts.
 	 */
 	static int setInsertBatchSize([int size = 500]) => baseAttendance._insertBatchSize = size;
-
+	
 	/**
 	 * Queue for batch insert
 	 */
@@ -383,7 +404,7 @@ abstract class baseAttendance extends ApplicationModel {
 		DABLDDO conn = baseAttendance.getConnection();
 		List<String> columns = baseAttendance.getColumnNames();
 		String quotedTable = conn.quoteIdentifier(baseAttendance.getTableName());
-
+	
 		List values = new List();
 
 		List<String> queryS = new List<String>();
@@ -547,6 +568,38 @@ abstract class baseAttendance extends ApplicationModel {
 		return validationErrors.isEmpty;
 	}
 
+	/**
+	 * Creates and executess DELETE Query for this object
+	 * Deletes any database rows with a primary key(s) that match Instance of 'BaseModelGenerator'
+	 * NOTE/BUG: If you alter pre-existing primary key(s) before deleting, then you will be
+	 * deleting based on the new primary key(s) and not the originals,
+	 * leaving the original row unchanged(if it exists).  Also, since NULL isn't an accurate way
+	 * to look up a row, I return if one of the primary keys is null.
+	 * @return int number of records deleted
+	 */
+	Future<int> delete() {
+		Map<String, Object> pks = getPrimaryKeyValues();
+		if(pks == null || pks.isEmpty) {
+			throw new Exception('This table has no primary keys');
+		}
+		Query q = baseAttendance.getQuery();
+		for(String pk in pks.keys) {
+			var pkVal = pks[pk];
+			if(pkVal == null || pkVal.isEmpty) {
+				throw new Exception('Cannot delete using NULL primary key.');
+			}
+			q.addAnd(pk, pkVal);
+		}
+		q.setTable(baseAttendance.getTableName());
+		Completer c = new Completer();
+		baseAttendance.doDelete(q, false).then((int cnt) {
+			baseAttendance.removeFromPool(this);
+			c.complete(cnt);
+		});
+		return c.future;
+			
+	}
+
 	Query getForeignObjectsQuery(String foreignTable, String foreignColumn, String localColumn, [Query q = null]) {
 		Object value = getColumn(localColumn);
 		if (null == value) {
@@ -572,16 +625,16 @@ abstract class baseAttendance extends ApplicationModel {
 		return setColumnValueByLibrary(columnName, value, 'rollcallDb_project', columnType);
 	}
 
-	List<Object> getPrimaryKeyValues() {
-	    List<String> vals = new List<String>();
+	Map<String, Object> getPrimaryKeyValues() {
+	    Map<String, Object> vals = new Map<String, Object>();
 	    InstanceMirror im = reflect(this);
 
 		 for(String pk in getPrimaryKeys()) {
 	    	var name = MirrorSystem.getName(new Symbol("_${pk}"));
 	    	var symb = MirrorSystem.getSymbol(name, currentMirrorSystem().findLibrary(new Symbol('rollcallDb_project')));
-	    	vals.add(im.getField(symb).reflectee.toString());
+	    	vals[pk] = im.getField(symb).reflectee.toString();
 	    }
 	    return vals;
 	}
 }
-
+	
