@@ -1,10 +1,12 @@
 name: RollCall
 description: A sample web application
 dependencies:
-  angular: any
+  angular: 0.9.8
   bootjack: any
   browser: any
   intl: any
   shadow_dom: any
+  dabl:
+    path: ../dabl-dart
 dev_dependencies:
   unittest: any

@@ -11,8 +11,8 @@
     <h1 class="title">RollCall for {{ctrl.currentDate.toLocal() | date:'M/d/yy' }}</h1>    
     <div>
       <ul class="person-list">
-        <li ng-repeat="person in ctrl.getPeople()|orderBy:'name'" ng-click="ctrl.togglePresent(person.dbKey)">
-        <button id="btn" class="btn b" ng-class="ctrl.isPresent(person.dbKey) ? 'btn-success' : 'btn-inverse'">{{ person.name }}</button>
+        <li ng-repeat="person in ctrl.people" ng-click="ctrl.togglePresent(person.getId())">
+        <button id="btn" class="btn b" ng-class="ctrl.isPresent(person.getId()) ? 'btn-success' : 'btn-inverse'">{{ person.getName() }}</button>
            
          </li>
          <li>New: <input ng-model="ctrl.name" type="text" /> <button ng-click="ctrl.addPerson()" class="btn btn-primary"><span class="glyphicon-plus"></span>Add</button></li>
