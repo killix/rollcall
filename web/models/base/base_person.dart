@@ -8,45 +8,45 @@ abstract class basePerson extends ApplicationModel {
 	/**
 	 * Name of the table
 	 */
-	static const String _tableName = 'person';
+	static const String tableName = 'person';
 
 	/**
 	 * Cache of objects retrieved from the database
 	 */
-	static Map<String, Person> _instancePool = new Map<String, Person>();
+	static Map<String, Person> instancePool = new Map<String, Person>();
 
-	static int _instancePoolCount = 0;
+	static int instancePoolCount = 0;
 
-	static bool _poolEnabled = true;
+	static bool poolEnabled = true;
 
 	/**
 	 * List of objects to batch insert
 	 */
-	static List<Person> _insertBatch = new List<Person>();
+	static List<Person> insertBatchCache = new List<Person>();
 
-	static int _insertBatchSize = 500;
+	static int insertBatchSize = 500;
 
 	/**
 	 * List of all primary keys
 	 */
-	static final List<String> _primaryKeys = [
+	static final List<String> primaryKeys = [
 		'id',
 	];
 
 	/**
 	 * string name of the primary key column
 	 */
-	static const String _primaryKey = 'id';
+	static const String primaryKey = 'id';
 
 	/**
 	 * true if primary key is an auto-increment column
 	 */
-	static const bool _isAutoIncrement = true;
+	static const bool isAutoIncrement = true;
 
 	/**
 	 * List of all fully-qualified(table.column) columns
 	 */
-	static final List<String> _columns = [
+	static final List<String> columns = [
 		basePerson.ID,
 		basePerson.NAME,
 		basePerson.CREATED,
@@ -55,7 +55,7 @@ abstract class basePerson extends ApplicationModel {
 	/**
 	 * List of all column names
 	 */
-	static final List<String> _columnNames = [
+	static final List<String> columnNames = [
 		'id',
 		'name',
 		'created',
@@ -64,7 +64,7 @@ abstract class basePerson extends ApplicationModel {
 	/**
 	 * map of all column types
 	 */
-	static final Map<String, String> _columnTypes = {
+	static final Map<String, String> columnTypes = {
 		'id': Model.COLUMN_TYPE_INTEGER,
 		'name': Model.COLUMN_TYPE_LONGVARCHAR,
 		'created': Model.COLUMN_TYPE_TIMESTAMP,
@@ -73,23 +73,23 @@ abstract class basePerson extends ApplicationModel {
 	/**
 	 * `id` INTEGER NOT NULL
 	 */
-	int _id;
+	int id;
 
 	/**
 	 * `name` LONGVARCHAR NOT NULL
 	 */
-	String _name;
+	String name;
 
 	/**
 	 * `created` TIMESTAMP NOT NULL
 	 */
-	String _created;
+	String created;
 			
 	/** 
 	 * Gets the value of the id field
 	 */
 	int getId() {
-		return _id;
+		return id;
 	}
 
 	/**
@@ -104,7 +104,7 @@ abstract class basePerson extends ApplicationModel {
 	 * Gets the value of the name field
 	 */
 	String getName() {
-		return _name;
+		return name;
 	}
 
 	/**
@@ -119,14 +119,14 @@ abstract class basePerson extends ApplicationModel {
 	 * Gets the value of the created field
 	 */
 	String getCreated([String format = null]) {
-		if(null == _created || null == format) {
-			return _created;
+		if(null == created || null == format) {
+			return created;
 		}
-		if(0 == _created.indexOf('0000-00-00')) {
+		if(0 == created.indexOf('0000-00-00')) {
 			return null;
 		}
 		DateFormat formatter = new DateFormat(format);
-		return formatter.format(DateTime.parse(_created));
+		return formatter.format(DateTime.parse(created));
 	}
 
 	/**
@@ -168,31 +168,31 @@ abstract class basePerson extends ApplicationModel {
 		return q;
 	}
 
-	static String getTableName() => basePerson._tableName;
+	static String getTableName() => basePerson.tableName;
 
-	static List<String> getColumnNames() => basePerson._columnNames;
+	static List<String> getColumnNames() => basePerson.columnNames;
 
-	static List<String> getColumns() => basePerson._columns;
+	static List<String> getColumns() => basePerson.columns;
 
-	static Map<String, String> getColumnTypes() => basePerson._columnTypes;
+	static Map<String, String> getColumnTypes() => basePerson.columnTypes;
 
-	static String getColumnType(String columnName) => basePerson._columnTypes[basePerson.normalizeColumnName(columnName)];
+	static String getColumnType(String columnName) => basePerson.columnTypes[basePerson.normalizeColumnName(columnName)];
 
 	static List<String> _columnsCache = new List<String>();
 
 	static bool hasColumn(String columnName) {
 		
 		if (null == _columnsCache || _columnsCache.isEmpty) {
-			_columnsCache = basePerson._columnNames.map((String s) => s.toLowerCase()).toList();
+			_columnsCache = basePerson.columnNames.map((String s) => s.toLowerCase()).toList();
 		}
 		return _columnsCache.contains(basePerson.normalizeColumnName(columnName).toLowerCase());
 	}
 
-	static List<String> getPrimaryKeys() => basePerson._primaryKeys;
+	static List<String> getPrimaryKeys() => basePerson.primaryKeys;
 
-	static String getPrimaryKey() => basePerson._primaryKey;
+	static String getPrimaryKey() => basePerson.primaryKey;
 
-	static bool isAutoIncrement() => basePerson._isAutoIncrement;
+	//static bool isAutoIncrement() => basePerson.isAutoIncrement;
 
 	static String normalizeColumnName(String columnName) => Model.normalizeColumnName(columnName);
 
@@ -212,7 +212,7 @@ abstract class basePerson extends ApplicationModel {
 		if(null == id) {
 			return null;
 		}
-		if(basePerson._poolEnabled) {
+		if(basePerson.poolEnabled) {
 			Person poolInstance = basePerson.retrieveFromPool(id);
 			if(null != poolInstance) {
 				return new Future.value(poolInstance);
@@ -274,7 +274,7 @@ abstract class basePerson extends ApplicationModel {
 	 */
 	static List<Person> fromResult(DDOStatement result, [List<Type> classNames = null, bool usePool = null]) {
 		if (null == usePool) {
-			usePool = basePerson._poolEnabled;
+			usePool = basePerson.poolEnabled;
 		}
 
 		if(classNames == null) {
@@ -294,7 +294,7 @@ abstract class basePerson extends ApplicationModel {
 	 */
 	/* Unneccessary method?
 	Person castInts() {
-		id = (null == id) ? null : int.parse(_id);
+		id = (null == id) ? null : int.parse(id);
 		return this;
 	}
 	*/
@@ -303,27 +303,27 @@ abstract class basePerson extends ApplicationModel {
 	 * Add (or replace) to the instance pool
 	 */
 	static void insertIntoPool(Person obj) {
-		if(!basePerson._poolEnabled) {
+		if(!basePerson.poolEnabled) {
 			return;
 		}
-		if (basePerson._instancePoolCount > Model.MAX_INSTANCE_POOL_SIZE) {
+		if (basePerson.instancePoolCount > Model.MAX_INSTANCE_POOL_SIZE) {
 			return;
 		}
 
-		basePerson._instancePool[obj.getPrimaryKeyValues().values.join('-')] = obj;
-		basePerson._instancePoolCount = basePerson._instancePool.length;
+		basePerson.instancePool[obj.getPrimaryKeyValues().values.join('-')] = obj;
+		basePerson.instancePoolCount = basePerson.instancePool.length;
 	}
 
 	/**
 	 * Return the cached instance from the pool
 	 */
 	static Person retrieveFromPool(Object pkValue) {
-		if(!basePerson._poolEnabled || null == pkValue) {
+		if(!basePerson.poolEnabled || null == pkValue) {
 			return null;
 		}
 		String key = pkValue.toString();
-		if(_instancePool.containsKey(key)) {
-			return _instancePool[key];
+		if(instancePool.containsKey(key)) {
+			return instancePool[key];
 		}
 		return null;
 	}
@@ -333,22 +333,22 @@ abstract class basePerson extends ApplicationModel {
 	 */
 	static void removeFromPool(Object obj) {
 		String pk = (obj is Model) ? obj.getPrimaryKeyValues().values.join('-') : obj.toString();
-		if(basePerson._instancePool.containsKey(pk)) {
-			basePerson._instancePool.remove(pk);
-			basePerson._instancePoolCount = basePerson._instancePool.length;
+		if(basePerson.instancePool.containsKey(pk)) {
+			basePerson.instancePool.remove(pk);
+			basePerson.instancePoolCount = basePerson.instancePool.length;
 		}
 	}
 
 	/**
 	 * Empty the instance pool.
 	 */
-	static void flushPool() => basePerson._instancePool.clear();
+	static void flushPool() => basePerson.instancePool.clear();
 
 	static void setPoolEnabled([bool b = true]) {
-		basePerson._poolEnabled = b;
+		basePerson.poolEnabled = b;
 	}
 	
-	static bool getPoolEnabled() => basePerson._poolEnabled;
+	static bool getPoolEnabled() => basePerson.poolEnabled;
 	
 	static Future<int> doCount([Query q = null]) {
 		q = q != null ? q.clone() : new Query();
@@ -409,23 +409,23 @@ abstract class basePerson extends ApplicationModel {
 	/**
 	 * Set the maximum insert batch size, once this size is reached the batch automatically inserts.
 	 */
-	static int setInsertBatchSize([int size = 500]) => basePerson._insertBatchSize = size;
+	static int setInsertBatchSize([int size = 500]) => basePerson.insertBatchSize = size;
 	
 	/**
 	 * Queue for batch insert
 	 */
 	Person queueForInsert() {
-		if(basePerson._insertBatch.length >= basePerson._insertBatchSize) {
+		if(basePerson.insertBatchCache.length >= basePerson.insertBatchSize) {
 			basePerson.insertBatch();
 		}
 
-		basePerson._insertBatch.add(this);
+		basePerson.insertBatchCache.add(this);
 
 		return this;
 	}
 
 	static Future<int> insertBatch() {
-		if (basePerson._insertBatch.isEmpty) {
+		if (basePerson.insertBatchCache.isEmpty) {
 			return new Future.value(0);
 		}
 
@@ -443,16 +443,15 @@ abstract class basePerson extends ApplicationModel {
 		queryS.add('INSERT INTO ${quotedTable} (${columns.map((String s) => conn.quoteIdentifier(s)).join(', ')}) VALUES');
 
 		List<String> placeHolders;
-		StringFormat formatter = new DateFormat(conn.getTimestampFormatter());
-		String now = formatter.format(new DateTime.now());
-		for(Person obj in basePerson._insertBatch) {
+		
+		for(Person obj in basePerson.insertBatch) {
 			placeHolders = new List<String>();
 
 			if (!obj.validate()) {
 				throw new Exception('Cannot save Person with validation errors: ${obj.getValidationErrors().join(', ')}');
 			}
 			if (obj.isNew && basePerson.hasColumn('created') && !obj.isColumnModified('created')) {
-				obj.setCreated(now);
+				obj.setCreated(new DateTime.now().toIso8601String());
 			}
 
 			for (String column in columns) {
@@ -470,7 +469,7 @@ abstract class basePerson extends ApplicationModel {
 		statement.setParams(values);
 		Completer c = new Completer();
 		statement.bindAndExecute().then((DDOStatement results) {
-			for (Person obj in basePerson._insertBatch) {
+			for (Person obj in basePerson.insertBatch) {
 				obj.setNew(false);
 				obj.resetModified();
 				if(obj.hasPrimaryKeyValues()) {
@@ -479,7 +478,7 @@ abstract class basePerson extends ApplicationModel {
 					obj.setDirty(true);
 				}
 			}
-			basePerson._insertBatch.clear();
+			basePerson.insertBatchCache.clear();
 			c.complete(results.rowCount());
 		});
 		return c.future;
@@ -544,7 +543,7 @@ abstract class basePerson extends ApplicationModel {
 		return baseAttendance.doCount(getAttendancesRelatedByPersonIdQuery(q));
 	}
 
-	List<Attendance> _AttendancesRelatedByPersonId_c = new List<Attendance>();
+	List<Attendance> AttendancesRelatedByPersonId_c = new List<Attendance>();
 			
 	/**
 	 * Deletes the attendance objects(rows) from the attendance table
@@ -554,7 +553,7 @@ abstract class basePerson extends ApplicationModel {
 		if (null == getId()) {
 			return new Future.value(0);
 		}
-		_AttendancesRelatedByPersonId_c.clear(); //Clear cached objects
+		AttendancesRelatedByPersonId_c.clear(); //Clear cached objects
 		return baseAttendance.doDelete(getAttendancesRelatedByPersonIdQuery(q));
 	}
 
@@ -574,15 +573,15 @@ abstract class basePerson extends ApplicationModel {
 		if (
 			null == q &&
 			getCacheResults() &&
-			_AttendancesRelatedByPersonId_c.isNotEmpty &&
+			AttendancesRelatedByPersonId_c.isNotEmpty &&
 			!isColumnModified('id')
 		) {
-			return new Future.value(_AttendancesRelatedByPersonId_c);
+			return new Future.value(AttendancesRelatedByPersonId_c);
 		}
 		Completer c = new Completer();
 		baseAttendance.doSelect(getAttendancesRelatedByPersonIdQuery(q)).then((List<Attendance> result) {
 			if (getCacheResults() && q != null) { //We can't cache when sent a Query object
-				_AttendancesRelatedByPersonId_c = result;
+				AttendancesRelatedByPersonId_c = result;
 			}
 			c.complete(result);
 		});
@@ -663,7 +662,7 @@ abstract class basePerson extends ApplicationModel {
 	    InstanceMirror im = reflect(this);
 
 		 for(String pk in getPrimaryKeys()) {
-	    	var name = MirrorSystem.getName(new Symbol("_${pk}"));
+	    	var name = MirrorSystem.getName(new Symbol("${pk}"));
 	    	var symb = MirrorSystem.getSymbol(name, currentMirrorSystem().findLibrary(new Symbol('rollcallDb_project')));
 	    	vals[pk] = im.getField(symb).reflectee.toString();
 	    }
