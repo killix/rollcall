@@ -2,10 +2,6 @@ part of rollcallDb_project;
 
 class Attendance extends baseAttendance {
 
-	String toString() {
-		return "${_personId}: ${_attendedOn}";
-	}
-
 	static String getPrimaryKey() => baseAttendance.getPrimaryKey();
 
 	static Attendance retrieveFromPool(Object pkValue) => baseAttendance.retrieveFromPool(pkValue);

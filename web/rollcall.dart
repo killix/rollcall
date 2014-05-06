@@ -1,5 +1,5 @@
 import 'package:angular/angular.dart';
-import '../rollcall_db_project.dart';
+import 'rollcall_db_project.dart';
 import 'package:dabl/dbmanager.dart' as DBManager;
 import 'package:ddo/drivers/ddo_websql.dart';
 import 'dart:async';
@@ -55,8 +55,9 @@ class PeopleController {
 		p.setName(name);
 		p.save().then((_) {
 			loadPeople();
+			name = '';
 		});
-		name = '';
+
 	}
 
 	void togglePresent(var dbKey) {

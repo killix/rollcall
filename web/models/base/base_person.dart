@@ -182,7 +182,7 @@ abstract class basePerson extends ApplicationModel {
 
 	static bool hasColumn(String columnName) {
 		
-		if (null == _columnsCache) {
+		if (null == _columnsCache || _columnsCache.isEmpty) {
 			_columnsCache = basePerson._columnNames.map((String s) => s.toLowerCase()).toList();
 		}
 		return _columnsCache.contains(basePerson.normalizeColumnName(columnName).toLowerCase());
@@ -443,11 +443,16 @@ abstract class basePerson extends ApplicationModel {
 		queryS.add('INSERT INTO ${quotedTable} (${columns.map((String s) => conn.quoteIdentifier(s)).join(', ')}) VALUES');
 
 		List<String> placeHolders;
+		StringFormat formatter = new DateFormat(conn.getTimestampFormatter());
+		String now = formatter.format(new DateTime.now());
 		for(Person obj in basePerson._insertBatch) {
 			placeHolders = new List<String>();
 
 			if (!obj.validate()) {
 				throw new Exception('Cannot save Person with validation errors: ${obj.getValidationErrors().join(', ')}');
+			}
+			if (obj.isNew && basePerson.hasColumn('created') && !obj.isColumnModified('created')) {
+				obj.setCreated(now);
 			}
 
 			for (String column in columns) {

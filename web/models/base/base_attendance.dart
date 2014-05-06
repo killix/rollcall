@@ -159,7 +159,7 @@ abstract class baseAttendance extends ApplicationModel {
 
 	static bool hasColumn(String columnName) {
 		
-		if (null == _columnsCache) {
+		if (null == _columnsCache || _columnsCache.isEmpty) {
 			_columnsCache = baseAttendance._columnNames.map((String s) => s.toLowerCase()).toList();
 		}
 		return _columnsCache.contains(baseAttendance.normalizeColumnName(columnName).toLowerCase());
@@ -411,6 +411,8 @@ abstract class baseAttendance extends ApplicationModel {
 		queryS.add('INSERT INTO ${quotedTable} (${columns.map((String s) => conn.quoteIdentifier(s)).join(', ')}) VALUES');
 
 		List<String> placeHolders;
+		StringFormat formatter = new DateFormat(conn.getTimestampFormatter());
+		String now = formatter.format(new DateTime.now());
 		for(Attendance obj in baseAttendance._insertBatch) {
 			placeHolders = new List<String>();
 
