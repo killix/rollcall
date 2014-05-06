@@ -18,7 +18,7 @@ class Person extends basePerson {
 
 	static List<String> getPrimaryKeys() => basePerson.getPrimaryKeys();
 
-	static bool isAutoIncrement() => basePerson.isAutoIncrement();
+	static bool isAutoIncrement() => basePerson.isAutoIncrement;
 
 	static DABLDDO getConnection() => basePerson.getConnection();
 

@@ -18,7 +18,7 @@ class Attendance extends baseAttendance {
 
 	static List<String> getPrimaryKeys() => baseAttendance.getPrimaryKeys();
 
-	static bool isAutoIncrement() => baseAttendance.isAutoIncrement();
+	static bool isAutoIncrement() => baseAttendance.isAutoIncrement;
 
 	static DABLDDO getConnection() => baseAttendance.getConnection();
 
