@@ -35,11 +35,6 @@ class PeopleController {
         currentDate = new DateTime(now.year, now.month, now.day, 0, 0, 0, 0);
         loadPeople();
         updatePresent();
-        baseAttendance.doSelect().then((List<Attendance> attendances){
-        	for(Attendance a in attendances) {
-        		print(a);
-        	}
-        });
 	}
 
 	void loadPeople() {
