@@ -1,0 +1,20 @@
+<table style="width:100%;">
+  <tr ng-repeat="person in ctrl.allPeople">
+    <td>{{person.getName()}}</td>
+    <td><a href="#" ng-click="ctrl.delete(person, $event)">Delete</a></td>
+  </tr>
+  <tr>
+    <td colspan="2">&nbsp;</td>
+  </tr>
+  <tr style="border-top: 1px solid #aaa;">
+    <td colspan="2">&nbsp;</td>
+  </tr>
+  <tr>
+    <td style="width: 80%;">
+      <input ng-model="ctrl.name" type="text" />
+    </td>
+    <td>
+      <button ng-click="ctrl.addPerson()" class="btn btn-primary"><span class="glyphicon-plus"></span>Add</button>
+    </td>
+  </tr>
+</table>  

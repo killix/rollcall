@@ -1,0 +1,10 @@
+<table style="width: 100%;">
+  <tr>
+    <th>Month</th>
+    <th>Total</th>
+  </tr>
+  <tr ng-repeat="monthTotal in ctrl.getMonthTotals()">
+    <td>{{ monthTotal.month }}</td>
+    <td>{{ monthTotal.total }}</td>
+  </tr>
+</table>

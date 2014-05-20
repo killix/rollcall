@@ -76,4 +76,8 @@ class Person extends basePerson {
   Map<String, Object> toArray() {
     // TODO: implement toArray
   }
+
+  Future<int> delete() {
+	  return deleteAttendancesRelatedByPersonId().then((_) => super.delete());
+  }
 }

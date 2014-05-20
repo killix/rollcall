@@ -64,7 +64,7 @@ abstract class baseAttendance extends ApplicationModel {
 	 */
 	static final Map<String, String> columnTypes = {
 		'personId': Model.COLUMN_TYPE_INTEGER,
-		'attendedOn': Model.COLUMN_TYPE_TIMESTAMP,
+		'attendedOn': Model.COLUMN_TYPE_INTEGER_TIMESTAMP,
 	};
 
 	/**
@@ -75,9 +75,9 @@ abstract class baseAttendance extends ApplicationModel {
 	/**
 	 * `attendedOn` TIMESTAMP NOT NULL
 	 */
-	String attendedOn;
-			
-	/** 
+	int attendedOn;
+
+	/**
 	 * Gets the value of the personId field
 	 */
 	int getPersonId() {
@@ -91,11 +91,11 @@ abstract class baseAttendance extends ApplicationModel {
 	Attendance setPersonId(Object value) {
 		return setColumnValue('personId', value, Model.COLUMN_TYPE_INTEGER);
 	}
-			
-	/** 
+
+	/**
 	 * Gets the value of the attendedOn field
 	 */
-	String getAttendedOn([String format = null]) {
+	Object getAttendedOn([String format = null]) {
 		if(null == attendedOn || null == format) {
 			return attendedOn;
 		}
@@ -111,7 +111,7 @@ abstract class baseAttendance extends ApplicationModel {
 	 */
 
 	Attendance setAttendedOn(Object value) {
-		return setColumnValue('attendedOn', value, Model.COLUMN_TYPE_TIMESTAMP);
+		return setColumnValue('attendedOn', value, Model.COLUMN_TYPE_INTEGER_TIMESTAMP);
 	}
 
 	static DABLDDO getConnection() {
@@ -158,7 +158,7 @@ abstract class baseAttendance extends ApplicationModel {
 	static List<String> _columnsCache = new List<String>();
 
 	static bool hasColumn(String columnName) {
-		
+
 		if (null == _columnsCache || _columnsCache.isEmpty) {
 			_columnsCache = baseAttendance.columnNames.map((String s) => s.toLowerCase()).toList();
 		}
@@ -319,9 +319,9 @@ abstract class baseAttendance extends ApplicationModel {
 	static void setPoolEnabled([bool b = true]) {
 		baseAttendance.poolEnabled = b;
 	}
-	
+
 	static bool getPoolEnabled() => baseAttendance.poolEnabled;
-	
+
 	static Future<int> doCount([Query q = null]) {
 		q = q != null ? q.clone() : new Query();
 		DABLDDO conn = baseAttendance.getConnection();
@@ -338,7 +338,7 @@ abstract class baseAttendance extends ApplicationModel {
 			q.setTable(baseAttendance.getTableName());
 		}
 		Future<int> result = q.doDelete(conn);
-		
+
 		if (flushPool) {
 			baseAttendance.flushPool();
 		}
@@ -382,7 +382,7 @@ abstract class baseAttendance extends ApplicationModel {
 	 * Set the maximum insert batch size, once this size is reached the batch automatically inserts.
 	 */
 	static int setInsertBatchSize([int size = 500]) => baseAttendance.insertBatchSize = size;
-	
+
 	/**
 	 * Queue for batch insert
 	 */
@@ -404,14 +404,14 @@ abstract class baseAttendance extends ApplicationModel {
 		DABLDDO conn = baseAttendance.getConnection();
 		List<String> columns = baseAttendance.getColumnNames();
 		String quotedTable = conn.quoteIdentifier(baseAttendance.getTableName());
-	
+
 		List values = new List();
 
 		List<String> queryS = new List<String>();
 		queryS.add('INSERT INTO ${quotedTable} (${columns.map((String s) => conn.quoteIdentifier(s)).join(', ')}) VALUES');
 
 		List<String> placeHolders;
-		
+
 		for(Attendance obj in baseAttendance.insertBatch) {
 			placeHolders = new List<String>();
 
@@ -598,7 +598,7 @@ abstract class baseAttendance extends ApplicationModel {
 			c.complete(cnt);
 		});
 		return c.future;
-			
+
 	}
 
 	Query getForeignObjectsQuery(String foreignTable, String foreignColumn, String localColumn, [Query q = null]) {
@@ -638,4 +638,4 @@ abstract class baseAttendance extends ApplicationModel {
 	    return vals;
 	}
 }
-	
+

@@ -15,7 +15,7 @@ import 'dart:mirrors';
 
 part 'application_model.dart';
 
-part 'models/attendance.dart';
-part 'models/base/base_attendance.dart';
-part 'models/base/base_person.dart';
-part 'models/person.dart';
+part 'attendance.dart';
+part 'base/base_attendance.dart';
+part 'base/base_person.dart';
+part 'person.dart';

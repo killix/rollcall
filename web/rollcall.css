@@ -8,6 +8,10 @@ body {
   margin: 15px;
 }
 
+#details {
+  padding: 10px 40px 0;
+}
+
 h1, p {
   color: #333;
 }
@@ -18,10 +22,19 @@ h1, p {
 
 ul {
   list-style: none;
+  
+}
+
+button.rollcall-btn {
+  width: 100%;
+}
+
+ul.person-list {
+  padding: 0;
 }
 
 ul.person-list li {
-  padding: 5px;
+  padding: 5px 0;
 }
 
 h1.title {
