@@ -31,9 +31,11 @@ class PersonListController {
 		conn = DBManager.getConnection();
 		conn.exec('CREATE TABLE IF NOT EXISTS person ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"name" TEXT NOT NULL,"created" TEXT NOT NULL)');
 		conn.exec('CREATE TABLE IF NOT EXISTS attendance ("personId" INTEGER NOT NULL,"attendedOn" INTEGER NOT NULL,PRIMARY KEY ("personId", "attendedOn"))');
-		Query q = new Query();
-		q.add(baseAttendance.ATTENDED_ON, '%:%', Query.CONTAINS);
-		baseAttendance.doDelete(q);
+
+		conn.exec("UPDATE [${baseAttendance.getTableName()}] SET [attendedOn] = strftime('%s001', [attendedOn]) WHERE [attendedOn] LIKE '%:%'").whenComplete(() {
+			conn.exec("DELETE FROM [${baseAttendance.getTableName()}] WHERE [attendedOn] LIKE '%:%'");
+		});
+
 		DateTime now = new DateTime.now();
         currentDate = new DateTime(now.year, now.month, now.day, 0, 0, 0, 0);
         loadPeople();
@@ -51,8 +53,7 @@ class PersonListController {
 	void togglePresent(var dbKey) {
 		Query q = new Query();
 		q.add(baseAttendance.PERSON_ID, dbKey);
-		DateFormat formatter = new DateFormat(conn.getTimestampFormatter());
-		q.add(baseAttendance.ATTENDED_ON, formatter.format(currentDate));
+		q.add(baseAttendance.ATTENDED_ON, currentDate.millisecondsSinceEpoch);
 		baseAttendance.doSelectOne(q).then((Attendance a) {
 			if(a != null) {
 				a.delete().then((_) {

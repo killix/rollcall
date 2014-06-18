@@ -15,13 +15,11 @@ class RollcallModule extends Module {
 		bind(PeopleComponent);
 		value(RouteInitializerFn, rollCallRouteInitializer);
 		factory(NgRoutingUsePushState,
-                (_) => new NgRoutingUsePushState.value(false));
+        	(_) => new NgRoutingUsePushState.value(false));
 	}
 }
 
 void main() {
-	Logger.root.level = Level.FINEST;
-    Logger.root.onRecord.listen((LogRecord r) { print(r.message); });
 	Tab.use();
 	applicationFactory().addModule(new RollcallModule()).run();
 }
