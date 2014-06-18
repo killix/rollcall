@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+
+<html ng-app>
+  <head>
+    <meta charset="utf-8">
+    <title>RollCall</title>
+    <link rel="stylesheet" href="rollcall.css">
+    <link rel="stylesheet" href="packages/bootjack/css/bootstrap.css">
+  </head>
+  <body ng-cloak>
+    <ul id="tabs" class="nav nav-tabs">
+      <li><a href="#/">Rollcall</a></li>
+      <li><a href="#/people">People</a></li>
+      <li><a href="#/totals">Totals</a></li>
+    </ul>
+    <section id="details">
+      <ng-view></ng-view>
+    </section>
+    <script src="packages/web_components/platform.js"></script>
+    <script src="packages/web_components/dart_support.js"></script>
+	<script type="application/dart" src="rollcall.dart"></script>
+	<script type="text/javascript" src="packages/browser/dart.js"></script>
+    
+  </body>
+</html>
