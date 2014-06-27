@@ -3,18 +3,14 @@ library people_component;
 import 'package:angular/angular.dart';
 
 import 'package:rollcall/models/rollcall_db_project.dart';
-import 'package:dabl/dbmanager.dart' as DBManager;
 import 'package:dabl_query/query.dart';
-import 'package:ddo/drivers/ddo_websql.dart';
-import 'package:intl/intl.dart';
 import 'dart:html';
 
 @Component(
 		selector: '[people]',
 		templateUrl: 'packages/rollcall/components/people_component/people_component.html',
-		cssUrl: 'packages/rollcall/components/people_component/people_component.css',
-		applyAuthorStyles: true,
-		publishAs: 'ctrl'
+		publishAs: 'ctrl',
+		useShadowDom: false
 	)
 class PeopleComponent {
 	String name = '';
@@ -31,8 +27,11 @@ class PeopleComponent {
 		basePerson.doSelect(q).then((List<Person> r) => allPeople = r);
 	}
 
-	void delete(Person person, MouseEvent event) {
-		event.preventDefault();
+	void delete(Person person) {
+		if (!window.confirm('Are you sure?')) {
+			return;
+		}
+
 		person.delete().then((_) {
 			loadPeople();
 		});

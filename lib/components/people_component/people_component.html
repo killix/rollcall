@@ -1,7 +1,7 @@
 <table style="width:100%;">
   <tr ng-repeat="person in ctrl.allPeople">
-    <td>{{person.getName()}}</td>
-    <td><a href="#" ng-click="ctrl.delete(person, $event)">Delete</a></td>
+    <td><a href="#/person/{{person.id}}">{{person.getName()}}</a></td>
+    <td><button ng-click="ctrl.delete(person)" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-remove"></span></button></td>
   </tr>
   <tr>
     <td colspan="2">&nbsp;</td>
@@ -14,7 +14,7 @@
       <input ng-model="ctrl.name" type="text" />
     </td>
     <td>
-      <button ng-click="ctrl.addPerson()" class="btn btn-primary"><span class="glyphicon-plus"></span>Add</button>
+      <button ng-click="ctrl.addPerson()" class="btn btn-primary btn-xs"><span class="glyphicon-plus"></span> Add</button>
     </td>
   </tr>
 </table>  

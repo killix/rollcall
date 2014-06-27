@@ -7,15 +7,12 @@ import 'package:rollcall/models/rollcall_db_project.dart';
 import 'package:dabl/dbmanager.dart' as DBManager;
 import 'package:dabl_query/query.dart';
 import 'package:ddo/drivers/ddo_websql.dart';
-import 'package:intl/intl.dart';
-import 'dart:web_sql';
 
 @Component(
 	selector: '[person-list]',
 	templateUrl: 'packages/rollcall/components/rollcall_component/person_list_component.html',
-    //cssUrl: 'packages/Rollcall/components/rollcall_component/person_list_component.css',
-	applyAuthorStyles: true,
-	publishAs: 'ctrl')
+    publishAs: 'ctrl',
+	useShadowDom: false)
 class PersonListController {
 	DateTime currentDate;
 	DABLDDO conn;
@@ -63,7 +60,7 @@ class PersonListController {
 			} else {
 				a = new Attendance();
 				a.setPersonId(dbKey);
-				a.setAttendedOn(currentDate.toIso8601String());
+				a.setAttendedOn(currentDate.millisecondsSinceEpoch);
 				a.save().then((_) {
 					loadPeople();
 					updatePresent();

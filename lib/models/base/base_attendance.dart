@@ -99,11 +99,9 @@ abstract class baseAttendance extends ApplicationModel {
 		if(null == attendedOn || null == format) {
 			return attendedOn;
 		}
-		if(0 == attendedOn.indexOf('0000-00-00')) {
-			return null;
-		}
 		DateFormat formatter = new DateFormat(format);
-		return formatter.format(DateTime.parse(attendedOn));
+
+		return formatter.format(new DateTime.fromMillisecondsSinceEpoch(attendedOn));
 	}
 
 	/**

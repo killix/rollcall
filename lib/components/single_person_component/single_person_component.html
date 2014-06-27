@@ -1,0 +1,11 @@
+<input type="text" ng-model="ctrl.name" />  <button ng-click="ctrl.update()" class="btn btn-primary btn-sm" ng-class="{'btn-disabled': ctrl.saving}"><span class="glyphicon glyphicon-ok"></span> Update</button>
+<table style="width: 100%">
+	<tr>
+		<th style="width: 90%">Attended</th>
+		<th>&nbsp;</th>
+	</tr>
+	<tr ng-repeat="attendance in ctrl.attendances">
+		<td>{{ attendance.getAttendedOn('y-M-d') }}</td>
+		<td><button ng-click="ctrl.deleteAttendance(attendance.getAttendedOn())" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-remove"></span></button></td>
+	</tr>
+</table>

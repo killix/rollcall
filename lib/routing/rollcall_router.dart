@@ -12,6 +12,9 @@ void rollCallRouteInitializer(Router router, RouteViewFactory views) {
 		'totals': ngRoute(
 			path: '/totals',
 			view: 'views/totals/index.html'),
+		'person': ngRoute(
+			path: '/person/:personId',
+			view: 'views/people/single.html'),
 		'index': ngRoute(
 			defaultRoute: true,
 			path: '/',

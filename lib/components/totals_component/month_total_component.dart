@@ -9,9 +9,8 @@ import 'package:dabl_query/query.dart';
 @Component(
 	selector: '[month-total]',
 	templateUrl: 'packages/rollcall/components/totals_component/month_total_component.html',
-    cssUrl: 'packages/rollcall/components/totals_component/month_total_component.css',
-    applyAuthorStyles: true,
-	publishAs: 'ctrl')
+    publishAs: 'ctrl',
+    useShadowDom: false)
 class MonthTotalComponent {
 	List<MonthTotal> monthTotals = new List<MonthTotal>();
 	bool _generatingMonthTotals = false;
