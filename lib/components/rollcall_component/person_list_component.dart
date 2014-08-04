@@ -22,9 +22,8 @@ class PersonListController {
 
 
 	PersonListController() {
-		DBManager.addConnection('rollcallDb', {'dbname': 'rollcallDb', 'driver': 'websql'});
+		DBManager.addConnection('rollcallDb', new DDOWebSQL(name: 'rollcallDb', version: '1.0'));
 
-		DBManager.setDriver(new DDOWebSQL(name: 'rollcallDb', version: '1.0'));
 		conn = DBManager.getConnection();
 		conn.exec('CREATE TABLE IF NOT EXISTS person ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"name" TEXT NOT NULL,"created" TEXT NOT NULL)');
 		conn.exec('CREATE TABLE IF NOT EXISTS attendance ("personId" INTEGER NOT NULL,"attendedOn" INTEGER NOT NULL,PRIMARY KEY ("personId", "attendedOn"))');
