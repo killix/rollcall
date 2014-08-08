@@ -1,5 +1,6 @@
 part of rollcallDb_project;
 
+@reflectedModel
 class Person extends basePerson {
 
 	static String getPrimaryKey() => basePerson.getPrimaryKey();

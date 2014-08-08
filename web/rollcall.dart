@@ -10,13 +10,13 @@ import 'package:rollcall/components/single_person_component/single_person_compon
 
 class RollcallModule extends Module {
 	RollcallModule() {
+		Binding.printInjectWarning = false;
 		bind(MonthTotalComponent);
 		bind(PersonListController);
 		bind(PeopleComponent);
 		bind(SinglePersonComponent);
-		value(RouteInitializerFn, rollCallRouteInitializer);
-		factory(NgRoutingUsePushState,
-        	(_) => new NgRoutingUsePushState.value(false));
+		bind(RouteInitializerFn, toValue: rollCallRouteInitializer);
+		bind(NgRoutingUsePushState, toValue: new NgRoutingUsePushState.value(false));
 	}
 }
 

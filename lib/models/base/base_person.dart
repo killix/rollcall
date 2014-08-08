@@ -1,5 +1,6 @@
 part of rollcallDb_project;
 
+@reflectedModel
 abstract class basePerson extends ApplicationModel {
 
 	static const String ID = 'person.id';
@@ -84,8 +85,8 @@ abstract class basePerson extends ApplicationModel {
 	 * `created` TIMESTAMP NOT NULL
 	 */
 	String created;
-			
-	/** 
+
+	/**
 	 * Gets the value of the id field
 	 */
 	int getId() {
@@ -99,8 +100,8 @@ abstract class basePerson extends ApplicationModel {
 	Person setId(Object value) {
 		return setColumnValue('id', value, Model.COLUMN_TYPE_INTEGER);
 	}
-			
-	/** 
+
+	/**
 	 * Gets the value of the name field
 	 */
 	String getName() {
@@ -114,8 +115,8 @@ abstract class basePerson extends ApplicationModel {
 	Person setName(Object value) {
 		return setColumnValue('name', value, Model.COLUMN_TYPE_LONGVARCHAR);
 	}
-			
-	/** 
+
+	/**
 	 * Gets the value of the created field
 	 */
 	String getCreated([String format = null]) {
@@ -181,7 +182,7 @@ abstract class basePerson extends ApplicationModel {
 	static List<String> _columnsCache = new List<String>();
 
 	static bool hasColumn(String columnName) {
-		
+
 		if (null == _columnsCache || _columnsCache.isEmpty) {
 			_columnsCache = basePerson.columnNames.map((String s) => s.toLowerCase()).toList();
 		}
@@ -347,9 +348,9 @@ abstract class basePerson extends ApplicationModel {
 	static void setPoolEnabled([bool b = true]) {
 		basePerson.poolEnabled = b;
 	}
-	
+
 	static bool getPoolEnabled() => basePerson.poolEnabled;
-	
+
 	static Future<int> doCount([Query q = null]) {
 		q = q != null ? q.clone() : new Query();
 		DABLDDO conn = basePerson.getConnection();
@@ -366,7 +367,7 @@ abstract class basePerson extends ApplicationModel {
 			q.setTable(basePerson.getTableName());
 		}
 		Future<int> result = q.doDelete(conn);
-		
+
 		if (flushPool) {
 			basePerson.flushPool();
 		}
@@ -410,7 +411,7 @@ abstract class basePerson extends ApplicationModel {
 	 * Set the maximum insert batch size, once this size is reached the batch automatically inserts.
 	 */
 	static int setInsertBatchSize([int size = 500]) => basePerson.insertBatchSize = size;
-	
+
 	/**
 	 * Queue for batch insert
 	 */
@@ -436,14 +437,14 @@ abstract class basePerson extends ApplicationModel {
 		if (columns.contains(pk)) {
 			columns.remove(pk);
 		}
-	
+
 		List values = new List();
 
 		List<String> queryS = new List<String>();
 		queryS.add('INSERT INTO ${quotedTable} (${columns.map((String s) => conn.quoteIdentifier(s)).join(', ')}) VALUES');
 
 		List<String> placeHolders;
-		
+
 		for(Person obj in basePerson.insertBatch) {
 			placeHolders = new List<String>();
 
@@ -544,7 +545,7 @@ abstract class basePerson extends ApplicationModel {
 	}
 
 	List<Attendance> AttendancesRelatedByPersonId_c = new List<Attendance>();
-			
+
 	/**
 	 * Deletes the attendance objects(rows) from the attendance table
 	 * with a personId that matches this.id
@@ -629,7 +630,7 @@ abstract class basePerson extends ApplicationModel {
 			c.complete(cnt);
 		});
 		return c.future;
-			
+
 	}
 
 	Query getForeignObjectsQuery(String foreignTable, String foreignColumn, String localColumn, [Query q = null]) {
@@ -669,4 +670,4 @@ abstract class basePerson extends ApplicationModel {
 	    return vals;
 	}
 }
-	
+

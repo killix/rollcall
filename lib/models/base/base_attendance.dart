@@ -1,5 +1,6 @@
 part of rollcallDb_project;
 
+@reflectedModel
 abstract class baseAttendance extends ApplicationModel {
 
 	static const String PERSON_ID = 'attendance.personId';

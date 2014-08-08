@@ -1,5 +1,6 @@
 part of rollcallDb_project;
 
+@reflectedModel
 class Attendance extends baseAttendance {
 
 	static String getPrimaryKey() => baseAttendance.getPrimaryKey();

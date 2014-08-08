@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 
 @MirrorsUsed(
-	targets: 'Person,Attendance,basePerson,baseAttendance,ApplicationModel',
+	metaTargets: const[ReflectedModel],
 	override: '*'
 )
 import 'dart:mirrors';

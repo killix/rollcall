@@ -1,14 +1,14 @@
 name: rollcall
 description: A sample web application
 dependencies:
-  angular: 0.11.0
+  angular: ">=0.13.0 <0.14.0"
   bootjack: any
   browser: any
-  intl: any
-  web_components: any
-  route_hierarchical: '>=0.4.18 <0.5.0'
   dabl:
     path: ../dabl-dart
+  intl: any
+  route_hierarchical: '>=0.4.18 <0.5.0'
+  web_components: any
 dev_dependencies:
   unittest: any
 transformers:
